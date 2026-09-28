@@ -4,6 +4,7 @@ import json
 import shortuuid
 from .models import Encurtador
 import json
+from datetime import date
 
 # Create your views here.
 
@@ -13,7 +14,7 @@ def encurta(request):
     link = data["url"]
     link_encurtado = Encurtador.gerar_codigo()    
     if link_encurtado and len(Encurtador.objects.filter(url_original=link)) == 0:
-        Encurtador.objects.create(url_original=link,url_encurtada=link_encurtado)
+        Encurtador.objects.create(url_original=link,url_encurtada=link_encurtado,dt_expiracao=date.today())
         response = {"url":request.build_absolute_uri(link_encurtado)}
         return HttpResponse(json.dumps(response,indent=4))
     else:
@@ -31,7 +32,7 @@ def consulta_url(request):
         lista = []
         for u in busca:            
             dicionario = {}            
-            dicionario["id"],dicionario['url_original'], dicionario['url_encurtada'] = u.id, u.url_original, u.url_encurtada
+            dicionario["id"],dicionario['url_original'], dicionario['url_encurtada'],dicionario["dt_expiracao"] = u.id, u.url_original, u.url_encurtada, u.dt_expiracao.strftime("%d/%m/%Y")
             lista.append(dicionario)
         response["url"] = lista
     else:       
@@ -40,7 +41,7 @@ def consulta_url(request):
         lista = []
         for u in busca:            
             dicionario = {}            
-            dicionario["id"],dicionario['url_original'], dicionario['url_encurtada'] = u.id, u.url_original, u.url_encurtada
+            dicionario["id"],dicionario['url_original'], dicionario['url_encurtada'],dicionario["dt_expiracao"] = u.id, u.url_original, u.url_encurtada, u.dt_expiracao.strftime("%d/%m/%Y")
             lista.append(dicionario)                    
         print(lista)
         response["url"] = lista
@@ -48,4 +49,7 @@ def consulta_url(request):
 
 def redireciona(request,codigo):
     url = get_object_or_404(Encurtador,url_encurtada=codigo)
+    print(url.dt_expiracao >= date.today())
+    if url.dt_expiracao >= date.today():
+        return HttpResponse(json.dumps({'Erro':'Url expirada'},indent=4),400)
     return redirect(url.url_original)
