@@ -1,5 +1,5 @@
 import json
-from django.http import HttpResponse
+from django.http import JsonResponse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,11 +18,10 @@ class JsonExceptionMiddleware:
         logger.error(f"Erro na API: {str(exception)}", exc_info=True)
                 
         response_data = {
-            "Erro": exception.__class__.__name__,
-            "Detalhe": str(exception)
+            "error": exception.__class__.__name__,
+            "detail": str(exception)
         }
-        return HttpResponse(
-            json.dumps(response_data, indent=4),
-            content_type="application/json",
+        return JsonResponse(
+            response_data,
             status=status_code
         )

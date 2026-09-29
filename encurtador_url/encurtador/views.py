@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404,redirect
-from django.http import request, JsonResponse
+from django.http import request, JsonResponse, Http404
 from .exceptions import RequisicaoIncompletaEncurtaException, RequisicaoIncompletaEncurtaURLException, DuplicidadeURLCadastradaException, FalhaNoServidorException, URLExpiradaException, URLNaoEncontradaException
 import json
 from .models import Encurtador
@@ -73,5 +73,15 @@ def redireciona(request:request,codigo):
         if url.dt_expiracao > date.today():
             raise URLExpiradaException()
         return redirect(url.url_original)
+
+    except Http404 as error:
+        raise URLNaoEncontradaException()
     except Exception as error:
         raise FalhaNoServidorException()
+
+def erro_404(request, exception):
+    return JsonResponse({
+        "status": 404,        
+        "detail": "URL nao encontrada",
+        "error": "NOT_FOUND",
+    }, status=404)

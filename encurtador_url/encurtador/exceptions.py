@@ -12,7 +12,7 @@ class RequisicaoIncompletaEncurtaURLException(APIException):
 
 class DuplicidadeURLCadastradaException(APIException):
     status_code = 422
-    default_detail = "Url já cadastrada"
+    default_detail = "Url ja cadastrada"
     default_code = "URL_JA_CADASTRADA"
 
 class FalhaNoServidorException(APIException):
@@ -27,4 +27,5 @@ class URLExpiradaException(APIException):
 
 class URLNaoEncontradaException(APIException):
     status_code = 404
-    default_detail = "URL não encontrada"
+    default_detail = "URL nao encontrada"
+    default_code = "NOT_FOUND"

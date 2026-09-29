@@ -21,3 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('encurtador.urls'))
 ]
+
+handler404 = "encurtador.views.erro_404"
