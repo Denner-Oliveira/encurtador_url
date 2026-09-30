@@ -27,13 +27,11 @@ def encurta_url(request:request):
         raise FalhaNoServidorException()
     
     if link_encurtado and len(Encurtador.objects.filter(url_original=link)) == 0:
-        dt_expiracao = data.get("dt_expiracao") or Encurtador.expiracao_padrao()        
-        Encurtador.objects.create(url_original=link,url_encurtada=link_encurtado,dt_expiracao=dt_expiracao)
+        Encurtador.objects.create(url_original=link,url_encurtada=link_encurtado,dt_expiracao=Encurtador.gera_data_expiracao())
         response = {"url":request.build_absolute_uri(link_encurtado)}
         return JsonResponse(response,json_dumps_params={'indent':4})
     else:
         raise DuplicidadeURLCadastradaException()
-
 
 def __iterador_busca(busca):
     lista = []
