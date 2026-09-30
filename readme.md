@@ -5,7 +5,6 @@ Aplicação web feita com Django para encurtar URLs, consultar os links cadastra
 ## Funcionalidades
 
 - Criação de links curtos por meio de uma API JSON.
-- Consulta dos links cadastrados, com opção de filtrar pela URL original.
 - Redirecionamento para a URL original usando o código curto.
 - Respostas de erro em JSON para links inexistentes ou expirados.
 - Página web simples disponível em `/index`.
@@ -16,7 +15,7 @@ Aplicação web feita com Django para encurtar URLs, consultar os links cadastra
 - Django 6.1.1
 - Django REST Framework 3.18.1
 - Compatível com POSTGRE 8.12
-- Pode ser usada com SQLite
+- Compatível com SQLite
 
 As dependências Python estão listadas em [`requirements.txt`](./requirements.txt).
 
@@ -135,38 +134,6 @@ Resposta `200`:
 
 O código curto tem cinco caracteres. Se a URL original já estiver cadastrada, a API responde com status `422`.
 
-### Consultar links
-
-`GET /consulta_url`
-
-Sem corpo, retorna os links cadastrados:
-
-```bash
-curl http://127.0.0.1:8000/consulta_url
-```
-
-Para filtrar pela URL original, envie um corpo JSON na requisição GET:
-
-```bash
-curl -X GET http://127.0.0.1:8000/consulta_url \
-  -H "Content-Type: application/json" \
-  -d "{\"url\":\"https://example.com/minha-pagina\"}"
-```
-
-Resposta:
-
-```json
-{
-  "response": [
-    {
-      "url_original": "https://example.com/minha-pagina",
-      "url_encurtada": "Ab3xY",
-      "dt_expiracao": "30/09/2027"
-    }
-  ]
-}
-```
-
 ### Redirecionar
 
 `GET /<codigo>`
@@ -185,7 +152,7 @@ As respostas de erro da API usam JSON com `error` e `detail`. Os principais stat
 | --- | --- |
 | `404` | Código ou URL não encontrado |
 | `410` | Link expirado |
-| `422` | Dados ausentes ou URL já cadastrada |
+| `422` | Dados ausentes |
 | `500` | Falha interna do servidor |
 
 ## Testes
