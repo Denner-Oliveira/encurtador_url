@@ -29,3 +29,8 @@ class URLNaoEncontradaException(APIException):
     status_code = 404
     default_detail = "URL nao encontrada"
     default_code = "NOT_FOUND"
+
+class URLInvalidaException(APIException):
+    status_code = 422
+    default_detail = "URL invalida"
+    default_code = "URL_INVALIDA"

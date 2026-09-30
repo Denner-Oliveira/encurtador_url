@@ -1,13 +1,22 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from django.http import request, JsonResponse, Http404
-from .exceptions import RequisicaoIncompletaEncurtaException, RequisicaoIncompletaEncurtaURLException, DuplicidadeURLCadastradaException, FalhaNoServidorException, URLExpiradaException, URLNaoEncontradaException
+from .exceptions import RequisicaoIncompletaEncurtaException, RequisicaoIncompletaEncurtaURLException, DuplicidadeURLCadastradaException, FalhaNoServidorException, URLExpiradaException, URLNaoEncontradaException, URLInvalidaException
 import json
 from .models import Encurtador
 import json
 from datetime import date
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
 # Create your views here.
+
+def __valida_url(url):
+    try:
+        URLValidator()(url)
+        return url
+    except ValidationError as error:
+        raise URLInvalidaException()
 
 @require_POST
 def encurta_url(request:request):
@@ -21,7 +30,7 @@ def encurta_url(request:request):
         if data["url"] is None:
             raise RequisicaoIncompletaEncurtaURLException()
         
-        link = data["url"]
+        link = __valida_url(data["url"])
         link_encurtado = Encurtador.gerar_codigo()
     except ValueError as error:
         raise FalhaNoServidorException()
