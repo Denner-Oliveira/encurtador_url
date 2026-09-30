@@ -15,7 +15,7 @@ Aplicação web feita com Django para encurtar URLs, consultar os links cadastra
 - Django 6.1.1
 - Django REST Framework 3.18.1
 - Compatível com POSTGRE 8.12
-- Compatível com SQLite
+- Compatível com SQLite 3.53
 
 As dependências Python estão listadas em [`requirements.txt`](./requirements.txt).
 
@@ -132,7 +132,7 @@ Resposta `200`:
 }
 ```
 
-O código curto tem cinco caracteres. Se a URL original já estiver cadastrada, a API responde com status `422`.
+O código curto tem cinco caracteres. Pode ser cadastrada a mesma URL mais de uma vez
 
 ### Redirecionar
 
