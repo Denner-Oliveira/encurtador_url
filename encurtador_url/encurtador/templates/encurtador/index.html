@@ -302,12 +302,20 @@
     let inputExpirar = document.getElementById("dt_expiracao");
 
     const hoje = new Date();
+    const hoje_max = new Date();
 
     const ano = hoje.getFullYear();
     const mes = String(hoje.getMonth() + 1).padStart(2, "0");
     const dia = String(hoje.getDate()).padStart(2, "0");
 
+    hoje_max.setDate(hoje_max.getDate() + 730)
+
+    const ano_max = hoje_max.getFullYear();
+    const mes_max = String(hoje_max.getMonth() + 1).padStart(2, "0");
+    const dia_max = String(hoje_max.getDate()).padStart(2, "0");
+
     inputExpirar.min = `${ano}-${mes}-${dia}`;
+    inputExpirar.max = `${ano_max}-${mes_max}-${dia_max}`
     /*
      * Obtém o valor do cookie CSRF criado pelo Django.
      */
