@@ -5,15 +5,17 @@ import json
 from .models import Encurtador
 import json
 from datetime import date
+from django.views.decorators.http import require_http_methods, require_POST, require_GET
 
 # Create your views here.
 
-def encurta(request:request):
+@require_POST
+def encurta_url(request:request):
+
+    if len(request.body.decode('utf-8')) == 0:
+        raise RequisicaoIncompletaEncurtaException()
 
     try:
-        if len(request.body.decode('utf-8')) == 0:
-            raise RequisicaoIncompletaEncurtaException()
-
         data:dict = json.loads(request.body.decode('utf-8'))
         
         if data["url"] is None:
@@ -21,16 +23,17 @@ def encurta(request:request):
         
         link = data["url"]
         link_encurtado = Encurtador.gerar_codigo()
-        
-        if link_encurtado and len(Encurtador.objects.filter(url_original=link)) == 0:
-            dt_expiracao = data.get("dt_expiracao") or Encurtador.expiracao_padrao()        
-            Encurtador.objects.create(url_original=link,url_encurtada=link_encurtado,dt_expiracao=dt_expiracao)
-            response = {"url":request.build_absolute_uri(link_encurtado)}
-            return JsonResponse(response,json_dumps_params={'indent':4})
-        else:
-            raise DuplicidadeURLCadastradaException()
-    except Exception as error:
+    except ValueError as error:
         raise FalhaNoServidorException()
+    
+    if link_encurtado and len(Encurtador.objects.filter(url_original=link)) == 0:
+        dt_expiracao = data.get("dt_expiracao") or Encurtador.expiracao_padrao()        
+        Encurtador.objects.create(url_original=link,url_encurtada=link_encurtado,dt_expiracao=dt_expiracao)
+        response = {"url":request.build_absolute_uri(link_encurtado)}
+        return JsonResponse(response,json_dumps_params={'indent':4})
+    else:
+        raise DuplicidadeURLCadastradaException()
+
 
 def __iterador_busca(busca):
     lista = []
@@ -41,6 +44,7 @@ def __iterador_busca(busca):
         lista.append(dicionario)
     return lista
 
+@require_GET
 def consulta_url(request:request):
 
     try:
@@ -66,18 +70,21 @@ def consulta_url(request:request):
     except Exception as error:
         raise FalhaNoServidorException()
 
+@require_GET
+def index(request:request):
+    return render(request,template_name='encurtador/index.html')
+    
+@require_GET
 def redireciona(request:request,codigo):
 
     try:
         url = get_object_or_404(Encurtador,url_encurtada=codigo)    
-        if url.dt_expiracao > date.today():
-            raise URLExpiradaException()
-        return redirect(url.url_original)
-
     except Http404 as error:
-        raise URLNaoEncontradaException()
-    except Exception as error:
-        raise FalhaNoServidorException()
+        raise URLNaoEncontradaException()        
+    
+    if url.dt_expiracao < date.today():
+        raise URLExpiradaException()
+    return redirect(url.url_original)
 
 def erro_404(request, exception):
     return JsonResponse({
@@ -85,3 +92,4 @@ def erro_404(request, exception):
         "detail": "URL nao encontrada",
         "error": "NOT_FOUND",
     }, status=404)
+
