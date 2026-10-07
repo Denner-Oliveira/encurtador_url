@@ -18,8 +18,9 @@ class JsonExceptionMiddleware:
         logger.error(f"Erro na API: {str(exception)}", exc_info=True)
                 
         response_data = {
-            "error": exception.__class__.__name__,
-            "detail": str(exception)
+            "status": getattr(exception,'status_code'),
+            "detail": getattr(exception, 'detail', str(exception)),
+            "error": getattr(exception, 'default_code', 'INTERNAL_ERROR')            
         }
         return JsonResponse(
             response_data,
