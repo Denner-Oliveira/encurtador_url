@@ -37,7 +37,7 @@ def encurta_url(request:request):
     
     if link_encurtado:
         Encurtador.objects.create(url_original=link,url_encurtada=link_encurtado,dt_expiracao=Encurtador.gera_data_expiracao())
-        response = {"url":request.build_absolute_uri(link_encurtado)}
+        response = {"url":request.build_absolute_uri(f"/{link_encurtado}")}
         return JsonResponse(response,json_dumps_params={'indent':4})
 
 @require_GET

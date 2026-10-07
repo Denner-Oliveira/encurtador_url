@@ -7,7 +7,7 @@ Aplicação web feita com Django para encurtar URLs, consultar os links cadastra
 - Criação de links curtos por meio de uma API JSON.
 - Redirecionamento para a URL original usando o código curto.
 - Respostas de erro em JSON para links inexistentes ou expirados.
-- Página web simples disponível em `/index`.
+- Página web simples disponível na raiz do projeto `/`.
 
 ## Tecnologias
 
@@ -100,13 +100,13 @@ Os comandos abaixo consideram que o terminal está na raiz do repositório.
    python manage.py runserver
    ```
 
-   O servidor estará disponível em <http://127.0.0.1:8000>. A configuração atual aceita `localhost` e `127.0.0.1` como hosts.
+   O servidor estará disponível em <http://localhost:<PORTA>. A configuração atual aceita `localhost` e `127.0.0.1` como hosts.
 
 ## Endpoints
 
 ### Criar um link curto
 
-`POST /encurta_url`
+`POST api/v1/encurta_url`
 
 Envie JSON com a URL original:
 
@@ -119,7 +119,7 @@ Envie JSON com a URL original:
 Exemplo:
 
 ```bash
-curl -X POST http://127.0.0.1:8000/encurta_url \
+curl -X POST http://localhost:<PORTA>/api/v1/encurta_url \
   -H "Content-Type: application/json" \
   -d "{\"url\":\"https://example.com/minha-pagina\"}"
 ```
@@ -128,7 +128,7 @@ Resposta `200`:
 
 ```json
 {
-  "url": "http://127.0.0.1:8000/Ab3xY"
+  "url": "http://localhost:<PORTA>/Ab3xY"
 }
 ```
 
@@ -138,11 +138,11 @@ O código curto tem cinco caracteres. Pode ser cadastrada a mesma URL mais de um
 
 `GET /<codigo>`
 
-Ao abrir, por exemplo, `http://127.0.0.1:8000/Ab3xY`, a aplicação redireciona para a URL original se o link ainda estiver válido. Links expirados retornam `410`; códigos não encontrados retornam `404`.
+Ao abrir, por exemplo, `http://localhost:<PORTA>/Ab3xY`, a aplicação redireciona para a URL original se o link ainda estiver válido. Links expirados retornam `410`; códigos não encontrados retornam `404`.
 
 ### Página web
 
-A página simples da aplicação está em <http://127.0.0.1:8000/index>.
+A página simples da aplicação está em <http://localhost:<PORTA>/>.
 
 ## Erros
 

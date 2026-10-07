@@ -19,7 +19,7 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('url/',include('encurtador.urls'))
+    path('',include('encurtador.urls'))
 ]
 
 handler404 = "encurtador.views.erro_404"
