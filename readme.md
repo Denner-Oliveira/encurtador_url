@@ -1,25 +1,24 @@
 # Encurtador de URL
 
-Aplicação web feita com Django para encurtar URLs, consultar os links cadastrados e redirecionar pelo código curto. Cada link tem um prazo de validade padrão de 365 dias podendo ser extendido para 730 dias.
+Aplicação web feita com Django para encurtar URLs, consultar os links cadastrados e redirecionar pelo código curto. Cada link tem validade padrão de 365 dias, podendo ser estendida para 730 dias.
 
 ## Funcionalidades
 
 - Criação de links curtos por meio de uma API JSON.
 - Redirecionamento para a URL original usando o código curto.
 - Respostas de erro em JSON para links inexistentes ou expirados.
-- Página web simples disponível na raiz do projeto `/`.
+- Página web simples disponível na raiz do projeto (`/`).
 
 ## Tecnologias
 
 - Python 3.12 ou superior
-- Django 6.1.1
-- Django REST Framework 3.18.1
-- Compatível com POSTGRE 8.12
-- Compatível com SQLite 3.53
+- Django 5.2 ou superior (versão limitada pelas dependências em `requirements.txt`)
+- Django REST Framework
+- PostgreSQL ou SQLite
 
 As dependências Python estão listadas em [`requirements.txt`](./requirements.txt).
 
-## Como executar localmente
+## Configuração
 
 Os comandos abaixo consideram que o terminal está na raiz do repositório.
 
@@ -32,7 +31,7 @@ Os comandos abaixo consideram que o terminal está na raiz do repositório.
    .\.venv\Scripts\Activate.ps1
    ```
 
-   **Linux/macOS:**
+   **Linux:**
 
    ```bash
    python3 -m venv .venv
@@ -45,44 +44,33 @@ Os comandos abaixo consideram que o terminal está na raiz do repositório.
    python -m pip install -r requirements.txt
    ```
 
-3. Crie o arquivo de ambiente que o Django carrega.:
+3. Crie o arquivo `.env` a partir do exemplo:
 
    **Windows (PowerShell):**
 
    ```powershell
-   Copy-Item ..env.example .env
+   Copy-Item .env.example .env
    ```
 
-   **Linux/macOS:**
+   **Linux:**
 
    ```bash
    cp .env.example .env
    ```
 
-4. Edite `.env` com uma chave secreta e a configuração do banco de dados. 
-- Para desenvolvimento local com POSTGRE, use:
+4. Configure o `.env` com a chave secreta e as credenciais do banco. Para SQLite:
 
    ```dotenv
-   ENGINE=django.db.backends.postgresql
-   NAME=nome-da-database
-   USER=
-   PASSWORD=
-   HOST=
-   PORT=
+   DB_ENGINE=django.db.backends.sqlite3
+   DB_NAME=db.sqlite3
+   DB_USER=
+   DB_PASSWORD=
+   DB_HOST=
+   DB_PORT=
    SECRET_KEY=coloque-aqui-uma-chave-secreta
    ```
 
-- Para desenvolvimento local com SQLite, use:
-
-   ```dotenv
-   ENGINE=django.db.backends.sqlite3
-   NAME=db.sqlite3
-   USER=
-   PASSWORD=
-   HOST=
-   PORT=
-   SECRET_KEY=coloque-aqui-uma-chave-secreta
-   ```
+   Para PostgreSQL, use `DB_ENGINE=django.db.backends.postgresql` e preencha `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST` e `DB_PORT` com os dados do banco.
 
    Gere uma chave secreta com:
 
@@ -90,23 +78,52 @@ Os comandos abaixo consideram que o terminal está na raiz do repositório.
    python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
 
-   Copie o valor gerado para `SECRET_KEY`. O arquivo `.env` contém configurações locais e não deve ser compartilhado.
+   Copie o valor gerado para `SECRET_KEY`. O `.env` contém configurações privadas e não deve ser compartilhado nem enviado ao controle de versão.
 
-1. Aplique as migrações e inicie o servidor. O `manage.py` fica dentro de `encurtador_url`, e esse diretório também precisa ser o diretório de trabalho para que as configurações do `.env` sejam carregadas:
+## Desenvolvimento local
 
-   ```bash
-   cd encurtador_url
-   python manage.py migrate
-   python manage.py runserver
-   ```
+O `manage.py` fica dentro do diretório `encurtador_url`. A partir da raiz do repositório:
 
-   O servidor estará disponível em <http://localhost:<PORTA>. A configuração atual aceita `localhost` e `127.0.0.1` como hosts.
+```bash
+cd encurtador_url
+python manage.py migrate
+python manage.py runserver
+```
+
+O servidor de desenvolvimento ficará disponível em <http://127.0.0.1:<PORTA>/>.
+
+## Execução em produção
+
+Em produção, execute o servidor WSGI a partir do diretório `encurtador_url` (o diretório que contém `manage.py` e `config/`). Antes de iniciar:
+
+- Configure o `.env` com uma `SECRET_KEY` exclusiva e os dados do banco de produção.
+- Altere `ALLOWED_HOSTS` em `config/settings.py` para incluir o domínio real da aplicação. A configuração atual aceita somente `localhost` e `127.0.0.1`.
+- Mantenha `DEBUG = False` e use HTTPS em produção. Recomenda-se colocar o servidor WSGI atrás de um proxy reverso com TLS.
+- Aplique as migrações com `python manage.py migrate`.
+
+### Windows com Waitress
+
+O Waitress está listado em `requirements.txt`. No PowerShell, dentro de `encurtador_url`, inicie o servidor com:
+
+```powershell
+waitress-serve --listen=127.0.0.1:<PORTA> config.wsgi:application
+```
+
+### Linux com Gunicorn
+
+O Gunicorn está listado em `requirements.txt`. No Linux, dentro de `encurtador_url`, inicie o servidor com:
+
+```bash
+gunicorn --workers 3 --bind 127.0.0.1:<PORTA> config.wsgi:application
+```
+
+Esses comandos escutam apenas na interface local, apropriado quando há um proxy reverso na mesma máquina. Se o servidor WSGI precisar aceitar conexões diretamente, ajuste o endereço de escuta para `0.0.0.0:<PORTA>` e configure firewall e HTTPS adequadamente.
 
 ## Endpoints
 
 ### Criar um link curto
 
-`POST api/v1/encurta_url`
+`POST /api/v1/encurta_url`
 
 Envie JSON com a URL original:
 
@@ -132,7 +149,7 @@ Resposta `200`:
 }
 ```
 
-O código curto tem cinco caracteres. Pode ser cadastrada a mesma URL mais de uma vez
+O código curto tem cinco caracteres. A mesma URL pode ser cadastrada mais de uma vez.
 
 ### Redirecionar
 

@@ -3,5 +3,5 @@ djangorestframework==3.18.1
 python-dotenv==1.2.3
 shortuuid==1.0.13
 psycopg2-binary==2.9.12
-guicorn #Caso esteja rodando o projeto no Linux, utilize o Gunicorn como servidor de produção.
-waitress #Caso esteja rodno o projeto no Windows, utilize o Waitress como servidor de produção.
+gunicorn # Servidor WSGI de produção para Linux.
+waitress # Servidor WSGI de produção para Windows.
