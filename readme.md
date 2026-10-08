@@ -100,6 +100,13 @@ Em produção, execute o servidor WSGI a partir do diretório `encurtador_url` (
 - Altere `ALLOWED_HOSTS` em `config/settings.py` para incluir o domínio real da aplicação. A configuração atual aceita somente `localhost` e `127.0.0.1`.
 - Mantenha `DEBUG = False` e use HTTPS em produção. Recomenda-se colocar o servidor WSGI atrás de um proxy reverso com TLS.
 - Aplique as migrações com `python manage.py migrate`.
+- Gere os arquivos estáticos após cada atualização do frontend:
+
+  ```bash
+  python manage.py collectstatic --noinput
+  ```
+
+  O WhiteNoise serve os arquivos coletados junto com a aplicação Waitress/Gunicorn. Não é necessário habilitar `DEBUG` para servir CSS e JavaScript.
 
 ### Windows com Waitress
 

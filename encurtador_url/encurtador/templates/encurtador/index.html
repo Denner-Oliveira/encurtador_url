@@ -1,629 +1,94 @@
+{% load static %}
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
-<title>Encurtador de URLs</title>
-
-<style>
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        font-family: Arial, Helvetica, sans-serif;
-        background: #f4f6f8;
-        min-height: 100vh;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        padding: 20px;
-        color: #1f2937;
-    }
-
-    .container {
-        width: 100%;
-        max-width: 600px;
-
-        background: #ffffff;
-
-        border-radius: 12px;
-
-        padding: 35px;
-
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .descricao {
-        text-align: center;
-        color: #6b7280;
-        margin-bottom: 30px;
-    }
-
-    .campo {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    input {
-        width: 100%;
-
-        padding: 13px;
-
-        border: 1px solid #d1d5db;
-        border-radius: 7px;
-
-        font-size: 15px;
-
-        outline: none;
-    }
-
-    input:focus {
-        border-color: #2563eb;
-    }
-
-    button {
-        width: 100%;
-
-        padding: 13px;
-
-        border: none;
-        border-radius: 7px;
-
-        background: #2563eb;
-        color: white;
-
-        font-size: 16px;
-        font-weight: bold;
-
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #1d4ed8;
-    }
-
-    button:disabled {
-        background: #9ca3af;
-        cursor: not-allowed;
-    }
-
-    .resultado {
-        margin-top: 25px;
-
-        padding: 20px;
-
-        background: #f0fdf4;
-
-        border: 1px solid #bbf7d0;
-        border-radius: 8px;
-
-        display: none;
-    }
-
-    .resultado h2 {
-        font-size: 18px;
-        margin-bottom: 12px;
-    }
-
-    .link-container {
-        display: flex;
-        gap: 8px;
-    }
-
-    .link-container input {
-        background: white;
-    }
-
-    .btn-copiar {
-        width: auto;
-
-        padding: 0 18px;
-
-        background: #16a34a;
-    }
-
-    .btn-copiar:hover {
-        background: #15803d;
-    }
-
-    .erro {
-        margin-top: 20px;
-
-        padding: 15px;
-
-        background: #fef2f2;
-
-        border: 1px solid #fecaca;
-        border-radius: 7px;
-
-        color: #b91c1c;
-
-        display: none;
-    }
-
-    .carregando {
-        display: none;
-
-        text-align: center;
-
-        margin-top: 15px;
-
-        color: #6b7280;
-    }
-
-    @media (max-width: 500px) {
-
-        .container {
-            padding: 25px 20px;
-        }
-
-        .link-container {
-            flex-direction: column;
-        }
-
-        .btn-copiar {
-            width: 100%;
-            padding: 13px;
-        }
-    }
-</style>
-
-
+    <meta name="theme-color" content="#f4f7fb">
+    <title>Encurtador de URLs</title>
+    <link rel="stylesheet" href="{% static 'encurtador/css/style.css' %}">
 </head>
-
 <body>
+    <header class="site-header">
+        <a class="brand" href="/" aria-label="Encurtador de URLs - página inicial">
+            <span class="brand-mark" aria-hidden="true">u/</span>
+            <span>Encurtador</span>
+        </a>
+        <span class="header-note">Links curtos, compartilhamento simples</span>
+    </header>
 
+    <main class="page-content">
+        <section class="container" aria-labelledby="page-title">
+            <div class="intro">
+                <span class="eyebrow">SIMPLES&nbsp; · &nbsp;RÁPIDO&nbsp; · &nbsp;DIRETO</span>
+                <h1 id="page-title">Encurtador de URLs</h1>
+                <p class="descricao">Transforme uma URL longa em um link curto.</p>
+            </div>
 
-<main class="container">
+            <form id="formEncurtador">
+                {% csrf_token %}
 
-    <h1>Encurtador de URLs</h1>
+                <div class="campo">
+                    <label for="url">URL original</label>
+                    <input
+                        type="url"
+                        id="url"
+                        name="url"
+                        placeholder="https://www.exemplo.com/pagina"
+                        required
+                    >
+                </div>
 
-    <p class="descricao">
-        Transforme uma URL longa em um link curto.
-    </p>
+                <div class="campo">
+                    <label for="dt_expiracao">
+                        Data de expiração
+                        <span class="optional">(opcional)</span>
+                    </label>
+                    <input
+                        type="date"
+                        id="dt_expiracao"
+                        name="dt_expiracao"
+                        min=""
+                    >
+                </div>
 
+                <button type="submit" id="btnEncurtar">Encurtar URL</button>
+            </form>
 
-    <form id="formEncurtador">
+            <div class="carregando" id="carregando" role="status" aria-live="polite">
+                Gerando link...
+            </div>
 
-        {% csrf_token %}
+            <div class="erro" id="erro" role="alert"></div>
 
-        <div class="campo">
+            <div class="resultado" id="resultado">
+                <h2>URL encurtada</h2>
+                <div class="link-container">
+                    <input
+                        type="text"
+                        id="urlEncurtada"
+                        aria-label="URL encurtada"
+                        readonly
+                    >
+                    <button type="button" class="btn-copiar" id="btnCopiar">
+                        Copiar
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
 
-            <label for="url">
-                URL original
-            </label>
-
-            <input
-                type="url"
-                id="url"
-                name="url"
-                placeholder="https://www.exemplo.com/pagina"
-                required
-            >
-
-        </div>
-
-
-        <div class="campo">
-
-            <label for="dt_expiracao">
-                Data de expiração
-                <span style="font-weight: normal;">
-                    (opcional)
-                </span>
-            </label>
-
-            <input
-                type="date"
-                id="dt_expiracao"
-                name="dt_expiracao"
-                min=""
-            >
-
-        </div>
-
-
-        <button
-            type="submit"
-            id="btnEncurtar"
+    <footer class="site-footer">
+        <span>Feito para compartilhar melhor.</span>
+        <a
+            href="https://github.com/Denner-Oliveira/encurtador_url"
+            target="_blank"
+            rel="noopener noreferrer"
         >
-            Encurtar URL
-        </button>
-
-    </form>
-
-
-    <div
-        class="carregando"
-        id="carregando"
-    >
-        Gerando link...
-    </div>
-
-
-    <div
-        class="erro"
-        id="erro"
-    ></div>
-
-
-    <div
-        class="resultado"
-        id="resultado"
-    >
-
-        <h2>
-            URL encurtada
-        </h2>
-
-
-        <div class="link-container">
-
-            <input
-                type="text"
-                id="urlEncurtada"
-                readonly
-            >
-
-            <button
-                type="button"
-                class="btn-copiar"
-                id="btnCopiar"
-            >
-                Copiar
-            </button>
-
-        </div>
-
-    </div>
-
-</main>
-
-
-<script>
-    let inputExpirar = document.getElementById("dt_expiracao");
-
-    const hoje = new Date();
-    const hoje_max = new Date();
-
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-    const dia = String(hoje.getDate()).padStart(2, "0");
-
-    hoje_max.setDate(hoje_max.getDate() + 730)
-
-    const ano_max = hoje_max.getFullYear();
-    const mes_max = String(hoje_max.getMonth() + 1).padStart(2, "0");
-    const dia_max = String(hoje_max.getDate()).padStart(2, "0");
-
-    inputExpirar.min = `${ano}-${mes}-${dia}`;
-    inputExpirar.max = `${ano_max}-${mes_max}-${dia_max}`
-    /*
-     * Obtém o valor do cookie CSRF criado pelo Django.
-     */
-    function getCookie(name) {
-
-        let cookieValue = null;
-
-        if (document.cookie && document.cookie !== "") {
-
-            const cookies = document.cookie.split(";");
-
-            for (let cookie of cookies) {
-
-                cookie = cookie.trim();
-
-                if (cookie.startsWith(name + "=")) {
-
-                    cookieValue = decodeURIComponent(
-                        cookie.substring(name.length + 1)
-                    );
-
-                    break;
-                }
-            }
-        }
-
-        return cookieValue;
-    }
-
-
-    /*
-     * Elementos da página
-     */
-    const form =
-        document.getElementById("formEncurtador");
-
-    const inputUrl =
-        document.getElementById("url");
-
-    const inputExpiracao =
-        document.getElementById("dt_expiracao");
-
-    const resultado =
-        document.getElementById("resultado");
-
-    const erro =
-        document.getElementById("erro");
-
-    const carregando =
-        document.getElementById("carregando");
-
-    const btnEncurtar =
-        document.getElementById("btnEncurtar");
-
-    const urlEncurtada =
-        document.getElementById("urlEncurtada");
-
-    const btnCopiar =
-        document.getElementById("btnCopiar");
-
-
-    /*
-     * Envio do formulário
-     */
-    form.addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            /*
-             * Limpa resultados anteriores
-             */
-            resultado.style.display = "none";
-
-            erro.style.display = "none";
-
-
-            /*
-             * Obtém os dados do formulário
-             */
-            const url =
-                inputUrl.value.trim();
-
-            const dtExpiracao =
-                inputExpiracao.value;
-
-
-            /*
-             * Validação básica
-             */
-            if (!url) {
-
-                mostrarErro(
-                    "Informe uma URL."
-                );
-
-                return;
-            }
-
-
-            /*
-             * Monta o JSON enviado para o Django
-             */
-            const dados = {
-                url: url
-            };
-
-
-            /*
-             * A data só é enviada se tiver sido informada.
-             */
-            if (dtExpiracao) {
-
-                dados.dt_expiracao =
-                    dtExpiracao;
-            }
-
-
-            /*
-             * Obtém o token CSRF.
-             */
-            const csrftoken =
-                getCookie("csrftoken");
-
-
-            /*
-             * Estado de carregamento
-             */
-            btnEncurtar.disabled = true;
-
-            carregando.style.display = "block";
-
-
-            try {
-
-                /*
-                 * Requisição para a URL correta
-                 *
-                 * Django:
-                 * path(
-                 *     'encurta_url',
-                 *     views.encurta_url
-                 * )
-                 */
-                const response =
-                    await fetch(
-                        "/api/v1/encurta_url",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-
-                                "X-CSRFToken":
-                                    csrftoken
-                            },
-
-                            body:
-                                JSON.stringify(dados)
-                        }
-                    );
-
-
-                /*
-                 * Tenta interpretar a resposta como JSON.
-                 */
-                const data =
-                    await response.json();
-
-
-                /*
-                 * Verifica erro HTTP.
-                 */
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.detail ||
-                        data.error ||
-                        "Não foi possível encurtar a URL."
-                    );
-                }
-
-
-                /*
-                 * Verifica se o Django retornou
-                 * a URL encurtada.
-                 */
-                if (!data.url) {
-
-                    throw new Error(
-                        "A API não retornou a URL encurtada."
-                    );
-                }
-
-
-                /*
-                 * Mostra o resultado.
-                 */
-                urlEncurtada.value =
-                    data.url;
-
-                resultado.style.display =
-                    "block";
-
-
-            } catch (error) {
-
-                console.error(
-                    "Erro ao encurtar URL:",
-                    error
-                );
-
-                mostrarErro(
-                    error.message ||
-                    "Erro ao comunicar com o servidor."
-                );
-
-
-            } finally {
-
-                btnEncurtar.disabled =
-                    false;
-
-                carregando.style.display =
-                    "none";
-            }
-        }
-    );
-
-
-    /*
-     * Copiar URL encurtada
-     */
-    btnCopiar.addEventListener(
-        "click",
-        async function() {
-
-            try {
-
-                await navigator.clipboard.writeText(
-                    urlEncurtada.value
-                );
-
-
-                const textoOriginal =
-                    btnCopiar.textContent;
-
-
-                btnCopiar.textContent =
-                    "Copiado!";
-
-
-                setTimeout(
-                    function() {
-
-                        btnCopiar.textContent =
-                            textoOriginal;
-
-                    },
-                    1500
-                );
-
-
-            } catch (error) {
-
-                /*
-                 * Fallback para navegadores
-                 * que não suportam Clipboard API.
-                 */
-                urlEncurtada.select();
-
-                document.execCommand("copy");
-
-                btnCopiar.textContent =
-                    "Copiado!";
-
-
-                setTimeout(
-                    function() {
-
-                        btnCopiar.textContent =
-                            "Copiar";
-
-                    },
-                    1500
-                );
-            }
-        }
-    );
-
-
-    /*
-     * Exibe mensagens de erro.
-     */
-    function mostrarErro(mensagem) {
-
-        erro.textContent =
-            mensagem;
-
-        erro.style.display =
-            "block";
-    }
-
-</script>
-
-
+            Ver projeto no GitHub <span aria-hidden="true">↗</span>
+        </a>
+    </footer>
+
+    <script src="{% static 'encurtador/js/index.js' %}"></script>
 </body>
 </html>
