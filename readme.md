@@ -150,4 +150,5 @@ As respostas de erro da API usam JSON com `error` e `detail`. Os principais stat
 | `404` | Código ou URL não encontrado |
 | `410` | Link expirado |
 | `422` | Dados ausentes |
+| `422` | Data de Validade inválida |
 | `500` | Falha interna do servidor |
