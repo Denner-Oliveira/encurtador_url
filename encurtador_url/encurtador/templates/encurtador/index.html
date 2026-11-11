@@ -53,6 +53,32 @@
                     <button type="button" class="btn-copiar" id="btnCopiar"> Copiar</button>
                 </div>
             </div>
+
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8edf5;">
+    <h2 style="margin-bottom: 6px; font-size: 16px;">Excluir URL encurtada</h2>
+    <p style="margin-bottom: 14px; color: #778197; font-size: 13px;">
+        Informe o código da URL que deseja excluir.
+    </p>
+
+    <form id="formDeletaUrl">
+        <div class="campo">
+            <label for="codigoUrl">Código da URL</label>
+            <input
+                type="text"
+                id="codigoUrl"
+                placeholder="Ex.: a1b2c3"
+                required
+            >
+        </div>
+
+        <button type="submit" id="btnDeletarUrl" style="background: #c0392b;">
+            Excluir URL
+        </button>
+    </form>
+
+    <p id="statusDeletaUrl" role="status" aria-live="polite" style="margin-top: 12px;"></p>
+    
+</div>
         </section>
     </main>
 
