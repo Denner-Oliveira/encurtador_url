@@ -1,6 +1,8 @@
 # Encurtador de URL
 
-Aplicação web feita com Django para encurtar URLs, consultar os links cadastrados e redirecionar pelo código curto. Cada link tem validade padrão de 365 dias, podendo ser estendida para 730 dias.
+Aplicação web feita com Django para encurtar URLs, e redirecionar pelo código curto. 
+
+Cada link tem validade padrão de 365 dias, podendo ser estendida para 730 dias.
 
 ## Funcionalidades
 
@@ -12,7 +14,7 @@ Aplicação web feita com Django para encurtar URLs, consultar os links cadastra
 ## Tecnologias
 
 - Python 3.12 ou superior
-- Django 5.2 ou superior (versão limitada pelas dependências em `requirements.txt`)
+- Django 5.2 ou superior
 - Django REST Framework
 - PostgreSQL ou SQLite
 
@@ -20,7 +22,7 @@ As dependências Python estão listadas em [`requirements.txt`](./requirements.t
 
 ## Configuração
 
-Os comandos abaixo consideram que o terminal está na raiz do repositório.
+Os comandos abaixo consideram que o terminal está na raiz do projeto.
 
 1. Crie e ative um ambiente virtual:
 
@@ -72,7 +74,7 @@ Os comandos abaixo consideram que o terminal está na raiz do repositório.
 
    Para PostgreSQL, use `DB_ENGINE=django.db.backends.postgresql` e preencha `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST` e `DB_PORT` com os dados do banco.
 
-   Gere uma chave secreta com:
+   Gere uma chave secreta com o seguinte código python:
 
    ```bash
    python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
@@ -90,41 +92,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-O servidor de desenvolvimento ficará disponível em <http://127.0.0.1:<PORTA>/>.
-
-## Execução em produção
-
-Em produção, execute o servidor WSGI a partir do diretório `encurtador_url` (o diretório que contém `manage.py` e `config/`). Antes de iniciar:
-
-- Configure o `.env` com uma `SECRET_KEY` exclusiva e os dados do banco de produção.
-- Altere `ALLOWED_HOSTS` em `config/settings.py` para incluir o domínio real da aplicação. A configuração atual aceita somente `localhost` e `127.0.0.1`.
-- Mantenha `DEBUG = False` e use HTTPS em produção. Recomenda-se colocar o servidor WSGI atrás de um proxy reverso com TLS.
-- Aplique as migrações com `python manage.py migrate`.
-- Gere os arquivos estáticos após cada atualização do frontend:
-
-  ```bash
-  python manage.py collectstatic --noinput
-  ```
-
-  O WhiteNoise serve os arquivos coletados junto com a aplicação Waitress/Gunicorn. Não é necessário habilitar `DEBUG` para servir CSS e JavaScript.
-
-### Windows com Waitress
-
-O Waitress está listado em `requirements.txt`. No PowerShell, dentro de `encurtador_url`, inicie o servidor com:
-
-```powershell
-waitress-serve --listen=127.0.0.1:<PORTA> config.wsgi:application
-```
-
-### Linux com Gunicorn
-
-O Gunicorn está listado em `requirements.txt`. No Linux, dentro de `encurtador_url`, inicie o servidor com:
-
-```bash
-gunicorn --workers 3 --bind 127.0.0.1:<PORTA> config.wsgi:application
-```
-
-Esses comandos escutam apenas na interface local, apropriado quando há um proxy reverso na mesma máquina. Se o servidor WSGI precisar aceitar conexões diretamente, ajuste o endereço de escuta para `0.0.0.0:<PORTA>` e configure firewall e HTTPS adequadamente.
+O servidor de desenvolvimento ficará disponível em <http://localhost:porta/>.
 
 ## Endpoints
 
@@ -136,14 +104,19 @@ Envie JSON com a URL original:
 
 ```json
 {
-  "url": "https://example.com/minha-pagina"
+  "url": "https://example.com/minha-pagina",
+  "dt_expiracao": "2026-12-31"
 }
 ```
+
+O campo url deve ser uma url válida e é obrigatório
+
+O campo dt_expiracao é opcional e deve ser enviado no formato AAAA-MM-DD
 
 Exemplo:
 
 ```bash
-curl -X POST http://localhost:<PORTA>/api/v1/encurta_url \
+curl -X POST http://localhost:<porta>/api/v1/encurta_url \
   -H "Content-Type: application/json" \
   -d "{\"url\":\"https://example.com/minha-pagina\"}"
 ```
@@ -152,7 +125,7 @@ Resposta `200`:
 
 ```json
 {
-  "url": "http://localhost:<PORTA>/Ab3xY"
+  "url": "http://localhost:<porta>/Ab3xY"
 }
 ```
 
@@ -162,11 +135,11 @@ O código curto tem cinco caracteres. A mesma URL pode ser cadastrada mais de um
 
 `GET /<codigo>`
 
-Ao abrir, por exemplo, `http://localhost:<PORTA>/Ab3xY`, a aplicação redireciona para a URL original se o link ainda estiver válido. Links expirados retornam `410`; códigos não encontrados retornam `404`.
+Ao abrir, por exemplo, `http://localhost:<porta>/Ab3xY`, a aplicação redireciona para a URL original se o link ainda estiver válido. Links expirados retornam `410`; códigos não encontrados retornam `404`.
 
 ### Página web
 
-A página simples da aplicação está em <http://localhost:<PORTA>/>.
+Uma página simples da aplicação está disponível em <http://localhost:<porta>/>.
 
 ## Erros
 
@@ -178,12 +151,3 @@ As respostas de erro da API usam JSON com `error` e `detail`. Os principais stat
 | `410` | Link expirado |
 | `422` | Dados ausentes |
 | `500` | Falha interna do servidor |
-
-## Testes
-
-Para executar os testes Django:
-
-```bash
-cd encurtador_url
-python manage.py test
-```

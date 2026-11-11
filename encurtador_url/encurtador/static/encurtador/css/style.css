@@ -20,9 +20,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 0 28px;
-    background:
-        radial-gradient(ellipse at 50% 40%, rgba(219, 232, 255, 0.5), transparent 55%),
-        #f4f7fb;
+    background:#f1f1f1;
 }
 
 .site-header,
@@ -82,7 +80,7 @@ body {
     max-width: 560px;
     padding: 44px;
     border: 1px solid #e8edf5;
-    border-radius: 20px;
+    border-radius: 5px;
     background: rgba(255, 255, 255, 0.96);
     box-shadow:
         0 24px 60px rgba(28, 45, 80, 0.08),
@@ -141,7 +139,7 @@ input {
     min-height: 48px;
     padding: 12px 14px;
     border: 1px solid #dce3ed;
-    border-radius: 9px;
+    
     outline: none;
     background: #fbfcfe;
     color: #273248;
@@ -200,7 +198,6 @@ button:disabled {
     margin-top: 24px;
     padding: 19px;
     border: 1px solid #bfe7d0;
-    border-radius: 11px;
     background: #f1fbf5;
 }
 

@@ -14,29 +14,20 @@
             <span class="brand-mark" aria-hidden="true">u/</span>
             <span>Encurtador</span>
         </a>
-        <span class="header-note">Links curtos, compartilhamento simples</span>
     </header>
 
     <main class="page-content">
         <section class="container" aria-labelledby="page-title">
             <div class="intro">
-                <span class="eyebrow">SIMPLES&nbsp; · &nbsp;RÁPIDO&nbsp; · &nbsp;DIRETO</span>
                 <h1 id="page-title">Encurtador de URLs</h1>
                 <p class="descricao">Transforme uma URL longa em um link curto.</p>
             </div>
 
             <form id="formEncurtador">
-                {% csrf_token %}
 
                 <div class="campo">
                     <label for="url">URL original</label>
-                    <input
-                        type="url"
-                        id="url"
-                        name="url"
-                        placeholder="https://www.exemplo.com/pagina"
-                        required
-                    >
+                    <input type="url" id="url" name="url" placeholder="https://www.exemplo.com/pagina" required >
                 </div>
 
                 <div class="campo">
@@ -44,12 +35,7 @@
                         Data de expiração
                         <span class="optional">(opcional)</span>
                     </label>
-                    <input
-                        type="date"
-                        id="dt_expiracao"
-                        name="dt_expiracao"
-                        min=""
-                    >
+                    <input type="date" id="dt_expiracao" name="dt_expiracao" min="" >
                 </div>
 
                 <button type="submit" id="btnEncurtar">Encurtar URL</button>
@@ -64,29 +50,15 @@
             <div class="resultado" id="resultado">
                 <h2>URL encurtada</h2>
                 <div class="link-container">
-                    <input
-                        type="text"
-                        id="urlEncurtada"
-                        aria-label="URL encurtada"
-                        readonly
-                    >
-                    <button type="button" class="btn-copiar" id="btnCopiar">
-                        Copiar
-                    </button>
+                    <input type="text" id="urlEncurtada" aria-label="URL encurtada" readonly>
+                    <button type="button" class="btn-copiar" id="btnCopiar"> Copiar</button>
                 </div>
             </div>
         </section>
     </main>
 
     <footer class="site-footer">
-        <span>Feito para compartilhar melhor.</span>
-        <a
-            href="https://github.com/Denner-Oliveira/encurtador_url"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            Ver projeto no GitHub <span aria-hidden="true">↗</span>
-        </a>
+
     </footer>
 
     <script src="{% static 'encurtador/js/index.js' %}"></script>

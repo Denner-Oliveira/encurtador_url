@@ -10,11 +10,6 @@ class RequisicaoIncompletaEncurtaURLException(APIException):
     default_detail = "Você precisa informar a url"
     default_code = "URL_AUSENTE"
 
-class DuplicidadeURLCadastradaException(APIException):
-    status_code = 422
-    default_detail = "Url ja cadastrada"
-    default_code = "URL_JA_CADASTRADA"
-
 class FalhaNoServidorException(APIException):
     status_code = 500
     default_detail = "Falha no servidor"
@@ -34,3 +29,8 @@ class URLInvalidaException(APIException):
     status_code = 422
     default_detail = "URL invalida"
     default_code = "URL_INVALIDA"
+
+class DataExpiracaoInvalidaException(APIException):
+    status_code = 422
+    default_detail = "Data de expiracao invalida"
+    default_code = "DATA_EXPIRACAO_INVALIDA"    
